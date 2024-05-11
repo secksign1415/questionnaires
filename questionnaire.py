@@ -1,5 +1,6 @@
 import json
 
+
 class Question:
     def __init__(self, titre, choix, bonne_reponse):
         self.titre = titre
@@ -14,21 +15,21 @@ class Question:
         q = Question(data["titre"], choix, bonne_reponse[0])
         return q
 
-    def poser(self):
-        print("QUESTION")
+    def poser(self, num_question, nb_question):
+        print("QUESTION", str(num_question + 1), '/', nb_question)
         print("  " + self.titre)
         for i in range(len(self.choix)):
-            print("  ", i+1, "-", self.choix[i])
+            print("  ", i + 1, "-", self.choix[i])
 
         print()
         resultat_response_correcte = False
         reponse_int = Question.demander_reponse_numerique_utlisateur(1, len(self.choix))
-        if self.choix[reponse_int-1].lower() == self.bonne_reponse.lower():
+        if self.choix[reponse_int - 1].lower() == self.bonne_reponse.lower():
             print("Bonne réponse")
             resultat_response_correcte = True
         else:
             print("Mauvaise réponse")
-            
+
         print()
         return resultat_response_correcte
 
@@ -43,7 +44,8 @@ class Question:
         except:
             print("ERREUR : Veuillez rentrer uniquement des chiffres")
         return Question.demander_reponse_numerique_utlisateur(min, max)
-    
+
+
 class Questionnaire:
     def __init__(self, questions, categorie, titre, difficulte):
         self.questions = questions
@@ -52,11 +54,10 @@ class Questionnaire:
         self.difficulte = difficulte
 
     def from_json_data(data):
-        questionnaire_data_questions =  data["questions"]
+        questionnaire_data_questions = data["questions"]
         questions = [Question.from_json_data(i) for i in questionnaire_data_questions]
 
         return Questionnaire(questions, data["categorie"], data["titre"], data["difficulte"])
-
 
     def lancer(self):
         score = 0
@@ -67,8 +68,10 @@ class Questionnaire:
         print("  Difficulte : " + self.difficulte)
         print("  Nombre de questions : " + str(len(self.questions)))
         print("-----")
-        for question in self.questions:
-            if question.poser():
+        for i in range(0, len(self.questions)):
+            question = self.questions[i]
+
+            if question.poser(i, len(self.questions)):
                 score += 1
         print("Score final :", score, "sur", len(self.questions))
         return score
@@ -80,7 +83,6 @@ file = open(filename, "r")
 json_data = file.read()
 file.close()
 questionnaire_data = json.loads(json_data)
-
 
 Questionnaire.from_json_data(questionnaire_data).lancer()
 
